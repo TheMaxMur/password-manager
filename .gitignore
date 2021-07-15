@@ -2,4 +2,4 @@
 /data/*
 
 #cache
-__pychache__
+__pychache__/
