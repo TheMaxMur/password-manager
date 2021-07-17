@@ -1,17 +1,24 @@
 import sys
 import random
-from PySide6 import QtCore, QtWidgets, QtGui
-from PySide6.QtWidgets import (QApplication, QWidget, QPushButton, QLabel, QLineEdit, QGridLayout, QMessageBox, QInputDialog)
+from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QLabel, QLineEdit, QGridLayout, QMessageBox, QInputDialog)
 import hashlib
 import screens.home
+import os
 
 class LoginWidget(QWidget):
 	def __init__(self, main_widget):
 		super().__init__()
 		self.setWindowTitle('Login Form')
 		self.main_widget = main_widget
-		self.password_hash = open("data/hash", "r").read()
-
+		
+		try:
+			self.password_hash = open("data/hash", "r").read()
+		except:
+			os.mkdir("data")
+			open('data/hash', 'w')
+			self.password_hash = open("data/hash", "r").read()
+	
 		layout = QGridLayout()
 		label_password = QLabel('<font size="4"> Password </font>')
 		self.lineEdit_password = QLineEdit()
@@ -25,7 +32,6 @@ class LoginWidget(QWidget):
 		layout.setRowMinimumHeight(2, 75)
 
 		self.setLayout(layout)
-
 		if not self.password_hash:
 			msg = QMessageBox()
 			text, ok = QInputDialog.getText(None, "Attention", "Password?", 
@@ -40,7 +46,7 @@ class LoginWidget(QWidget):
 		msg = QMessageBox()
 
 		if hashlib.sha224(self.lineEdit_password.text().encode('utf-8')).hexdigest() == self.password_hash:
-			home_screen = screens.home.MyWidget()
+			home_screen = screens.home.MainWindow()
 			self.main_widget.addWidget(home_screen)
 			self.main_widget.setCurrentIndex(self.main_widget.currentIndex() + 1)
 		else:

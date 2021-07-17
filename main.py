@@ -1,10 +1,10 @@
 import sys
-from PySide6 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtWidgets
 from screens.login import *
 
 
 if __name__ == "__main__":
-	app = QtWidgets.QApplication([])
+	app = QtWidgets.QApplication(sys.argv)
 
 	main_widget = QtWidgets.QStackedWidget()
 	widget = LoginWidget(main_widget)
