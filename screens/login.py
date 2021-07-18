@@ -1,7 +1,4 @@
-import sys
-import random
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QLabel, QLineEdit, QGridLayout, QMessageBox, QInputDialog)
+from PyQt5.QtWidgets import (QWidget, QPushButton, QLabel, QLineEdit, QGridLayout, QMessageBox, QInputDialog)
 import hashlib
 import screens.home
 import os
@@ -15,7 +12,10 @@ class LoginWidget(QWidget):
 		try:
 			self.password_hash = open("data/hash", "r").read()
 		except:
-			os.mkdir("data")
+			try:
+				os.mkdir("data")
+			except:
+				pass
 			open('data/hash', 'w')
 			self.password_hash = open("data/hash", "r").read()
 	
@@ -23,12 +23,14 @@ class LoginWidget(QWidget):
 		label_password = QLabel('<font size="4"> Password </font>')
 		self.lineEdit_password = QLineEdit()
 		self.lineEdit_password.setPlaceholderText('Please enter your password')
+		self.lineEdit_password.setEchoMode(QLineEdit.Password)
+		self.lineEdit_password.returnPressed.connect(self.check_password)
 		layout.addWidget(label_password, 1, 0)
 		layout.addWidget(self.lineEdit_password, 1, 1)
 
-		button_login = QPushButton('Login')
-		button_login.clicked.connect(self.check_password)
-		layout.addWidget(button_login, 2, 0, 1, 2)
+		self.button_login = QPushButton('Login')
+		self.button_login.clicked.connect(self.check_password)
+		layout.addWidget(self.button_login, 2, 0, 1, 2)
 		layout.setRowMinimumHeight(2, 75)
 
 		self.setLayout(layout)

@@ -9,7 +9,7 @@ if __name__ == "__main__":
 	main_widget = QtWidgets.QStackedWidget()
 	widget = LoginWidget(main_widget)
 	main_widget.addWidget(widget)
-	main_widget.resize(800, 600)
+	main_widget.resize(1000, 800)
 	main_widget.show()
 
 	sys.exit(app.exec_())
