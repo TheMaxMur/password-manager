@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QInputDialog, QMessageBox, QMainWindow, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel
 import hashlib
+from services.aes import *
 
 class viewWidget(QMainWindow):
     def __init__(self, main_widget, home_screen, domain, username, password):
@@ -57,13 +58,20 @@ class viewWidget(QMainWindow):
 
     def copyText(self):
         msg = QMessageBox()
-        with open("data/hash", "r") as hash:
-            text, ok = QInputDialog.getText(None, "Attention", "Password?", 
-                                        QLineEdit.Password)
-            if ok and text and hashlib.sha224(text.encode('utf-8')).hexdigest() == hash.read().strip():
-                cb = QApplication.clipboard()
-                cb.clear(mode=cb.Clipboard)
-                cb.setText(self.password, mode=cb.Clipboard)
-            else:
-                msg.setText('Incorrect Password')
-                msg.exec_()
+        text, ok = QInputDialog.getText(None, "Attention", "Password?", 
+                                    QLineEdit.Password)
+        key = hashlib.sha224(text.encode('utf-8')).hexdigest()[:32]
+        try:
+            passhash = decrypt_file('./data/hash', key)
+        except:
+            msg.setText('Incorrect Password')
+            msg.exec_()
+            return
+            
+        if ok and text and key == passhash:
+            cb = QApplication.clipboard()
+            cb.clear(mode=cb.Clipboard)
+            cb.setText(self.password, mode=cb.Clipboard)
+        else:
+            msg.setText('Incorrect Password')
+            msg.exec_()

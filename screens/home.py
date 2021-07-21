@@ -1,14 +1,16 @@
 import hashlib
 import csv
+from services.aes import decrypt_file, encrypt_file
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QWidget, QLineEdit, QHeaderView, QVBoxLayout, QPushButton, QMainWindow, QTableWidget, QInputDialog, QMessageBox, QAbstractItemView
 import screens.add
 import screens.view
 
 class MainWindow(QMainWindow):
-    def __init__(self, main_widget):
+    def __init__(self, main_widget, password_hash):
         QMainWindow.__init__(self)
         self.main_widget = main_widget
+        self.password_hash = password_hash
 
         self.central_widget = QWidget(self)                
         self.setCentralWidget(self.central_widget)           
@@ -66,38 +68,61 @@ class MainWindow(QMainWindow):
 
     def copyText(self, button_index, data):
         msg = QMessageBox()
-        with open("data/hash", "r") as hash:
-            text, ok = QInputDialog.getText(None, "Attention", "Password?", 
-                                        QLineEdit.Password)
-            if ok and text and hashlib.sha224(text.encode('utf-8')).hexdigest() == hash.read().strip():
-                cb = QApplication.clipboard()
-                cb.clear(mode=cb.Clipboard)
-                data = data[button_index]
-                cb.setText(list(data[list(data.keys())[0]].values())[0], mode=cb.Clipboard)
-            else:
-                msg.setText('Incorrect Password')
-                msg.exec_()
+        text, ok = QInputDialog.getText(None, "Attention", "Password?", 
+                                    QLineEdit.Password)
+        key = hashlib.sha224(text.encode('utf-8')).hexdigest()[:32]
+        try:
+            passhash = decrypt_file('./data/hash', key)
+        except:
+            msg.setText('Incorrect Password')
+            msg.exec_()
+            return
+
+        if ok and text and key == passhash:
+            cb = QApplication.clipboard()
+            cb.clear(mode=cb.Clipboard)
+            data = data[button_index]
+            cb.setText(list(data[list(data.keys())[0]].values())[0], mode=cb.Clipboard)
+        else:
+            msg.setText('Incorrect Password')
+            msg.exec_()
 
     def changeScreenToAdd(self):
-        add_screen = screens.add.AddWidget(self.main_widget, self)
+        add_screen = screens.add.AddWidget(self.main_widget, self, self.password_hash)
         self.main_widget.addWidget(add_screen)
         self.main_widget.setCurrentWidget(add_screen)
 
     def deletePassword(self, button_index):
-        data = self.data[button_index]
-        result = list(data.keys())[0] + ';' + list(data[list(data.keys())[0]].keys())[0] + ';' + list(data[list(data.keys())[0]].values())[0]
+        msg = QMessageBox()
+        text, ok = QInputDialog.getText(None, "Attention", "Password?", 
+                                    QLineEdit.Password)
 
-        with open('./data/data.csv', "r+") as data_file:
-            new_f = data_file.readlines()
-            data_file.seek(0)
-            for line in new_f:
-                if result != line.strip():
-                    data_file.write(line)
-            data_file.truncate()
-        print(button_index, self.data)
-        result = ""
+        key = hashlib.sha224(text.encode('utf-8')).hexdigest()[:32]
+        try:
+            passhash = decrypt_file('./data/hash', key)
+        except:
+            pass
 
-        self.table.setRowHidden(button_index, True)
+        if ok and text and key == passhash:
+            data = self.data[button_index]
+            result_massive = []
+            result = list(data.keys())[0] + ';' + list(data[list(data.keys())[0]].keys())[0] + ';' + list(data[list(data.keys())[0]].values())[0]
+            for index in range(len(self.data)):
+                data = self.data[index]
+                for elID in range(len(data)):
+                    datastr = list(data.keys())[elID] + ';' + list(data[list(data.keys())[elID]].keys())[elID] + ';' + list(data[list(data.keys())[elID]].values())[elID]
+                    if result != datastr:
+                        result_massive.append(datastr)
+
+            decrypt_file('data/data.csv', self.password_hash)
+            with open('data/data.csv', 'w') as data_file:
+                for index in range(len(result_massive)):
+                    data_file.write(result_massive[index])
+            encrypt_file('data/data.csv', self.password_hash)
+            self.table.setRowHidden(button_index, True)
+        else:
+            msg.setText('Incorrect Password')
+            msg.exec_()
 
     def createTable(self):
         self.loadData()
@@ -149,9 +174,12 @@ class MainWindow(QMainWindow):
 
     def loadData(self):
         self.data = {}
-        with open("./data/data.csv", "r") as data_file:
-            reader = csv.reader(data_file, delimiter = ';')
+        data_file = decrypt_file('./data/data.csv', self.password_hash).strip().split("\n")
+        reader = csv.reader(data_file, delimiter = ';')
+        try:
             for row in reader:
                 self.data[self.data_id] = {row[0]: {row[1]: row[2]}}
                 self.data_id += 1     
             self.data_id = 0
+        except:
+            pass

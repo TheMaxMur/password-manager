@@ -1,13 +1,15 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLCDNumber, QMessageBox, QCheckBox, QMainWindow, QPushButton, QSlider, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel
-import random
+import random, csv
+from services.aes import * 
 
 
 class AddWidget(QMainWindow):
-    def __init__(self, main_widget, home_screen):
+    def __init__(self, main_widget, home_screen, password_hash):
         QMainWindow.__init__(self)
         self.main_widget = main_widget
         self.home_screen = home_screen
+        self.password_hash = password_hash
 
         self.central_widget = QWidget(self)                
         self.setCentralWidget(self.central_widget)   
@@ -96,9 +98,20 @@ class AddWidget(QMainWindow):
         if resultMassive != '' and self.lineEditSite.text() != '' and self.lineEditUsername.text() != '':
             for _ in range(self.passLenghtValue):
                 password += random.choice(resultMassive)
-            dataFile = open('./data/data.csv', 'a')
-            dataFile.write(self.lineEditSite.text() + ';' + self.lineEditUsername.text() + ';' + password + '\n')
+            key = self.password_hash
+            data_file = decrypt_file('./data/data.csv', key).strip().split("\n")
+
+            data = {}
+            dataFile = open('./data/data.csv', 'wb')
+            
+            reader = csv.reader(data_file)#, delimiter = ';')
+            for row in reader:
+                if row != []:
+                    dataFile.write((row[0] + '\n').encode("utf-8"))
+
+            dataFile.write((self.lineEditSite.text() + ';' + self.lineEditUsername.text() + ';' + password + '\n').encode("utf-8"))
             dataFile.close()
+            encrypt_file('./data/data.csv', self.password_hash)
             msg.setText('Success')
             msg.exec_()
             self.home_screen.createTable()
