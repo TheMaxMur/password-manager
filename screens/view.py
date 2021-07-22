@@ -18,7 +18,7 @@ class viewWidget(QMainWindow):
         self.siteEditWidget = QWidget()
         self.siteEditLayout = QVBoxLayout(self.siteEditWidget)
         self.label_site = QLabel('<font size="10"> Site </font>')
-        self.data_site = QLabel('<font size="1">' + domain + ' </font>')
+        self.data_site = QLabel('<font size="6">' + domain + ' </font>')
         self.siteEditLayout.addWidget(self.label_site)
         self.siteEditLayout.addWidget(self.data_site)
         
@@ -26,7 +26,7 @@ class viewWidget(QMainWindow):
         self.usernameEditWidget = QWidget()
         self.usernameEditLayout = QVBoxLayout(self.usernameEditWidget)
         self.label_username = QLabel('<font size="10"> Username </font>')
-        self.data_username = QLabel('<font size="8">' + username + ' </font>')
+        self.data_username = QLabel('<font size="6">' + username + ' </font>')
         self.usernameEditLayout.addWidget(self.label_username)
         self.usernameEditLayout.addWidget(self.data_username)
 
