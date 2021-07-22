@@ -7,11 +7,7 @@ def pad(s):
 def encrypt(message, key):
     message = pad(message)
     iv = os.urandom(16)
-<<<<<<< HEAD
     key = key.encode('utf-8')
-=======
-    key = key.encode("utf-8")
->>>>>>> main
     cipher = AES.new(key, AES.MODE_CBC, iv)
     return iv + cipher.encrypt(message)
 

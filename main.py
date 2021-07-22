@@ -1,5 +1,6 @@
 import sys
 from PyQt5 import QtWidgets
+from PyQt5.QtGui import QIcon
 from screens.login import *
 
 
@@ -11,6 +12,7 @@ if __name__ == "__main__":
 	main_widget.addWidget(loginWidget)
 	main_widget.resize(1000, 800)
 	main_widget.setWindowTitle('Passwords')
+	main_widget.setWindowIcon(QIcon("assets/appIcon.png"))
 	main_widget.show()
 
 	sys.exit(app.exec_())
