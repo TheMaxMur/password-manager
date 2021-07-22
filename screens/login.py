@@ -40,21 +40,24 @@ class LoginWidget(QWidget):
 		self.layout = QGridLayout()
 		self.label_password = QLabel('<font size="4"> Password </font>')
 		self.lineEdit_password = QLineEdit()
+		self.button_login = QPushButton('Login')
 		self.lineEdit_password.setPlaceholderText('Please enter your password')
 		self.lineEdit_password.setEchoMode(QLineEdit.Password)
-		self.lineEdit_password.returnPressed.connect(self.check_password)
+		if self.password_hashFlag:
+			self.lineEdit_password.returnPressed.connect(self.check_password)
+			self.button_login.clicked.connect(self.check_password)
+		else:
+			self.label_passwordNotFound = QLabel('<font size="4"> Main password not found. Enter new. </font>')
+			self.lineEdit_password.returnPressed.connect(self.savePassword)
+			self.button_login.clicked.connect(self.savePassword)
+			self.layout.addWidget(self.label_passwordNotFound, 0, 0)
 		self.layout.addWidget(self.label_password, 1, 0)
 		self.layout.addWidget(self.lineEdit_password, 1, 1)
 
-		self.button_login = QPushButton('Login')
-		self.button_login.clicked.connect(self.check_password)
 		self.layout.addWidget(self.button_login, 2, 0, 1, 2)
 		self.layout.setRowMinimumHeight(2, 75)
 
 		self.setLayout(self.layout)
-
-		if not self.password_hashFlag:
-			self.savePassword()
 
 	def check_password(self):
 		msg = QMessageBox()
@@ -71,10 +74,9 @@ class LoginWidget(QWidget):
 
 	def savePassword(self):
 		msg = QMessageBox()
-		text, ok = QInputDialog.getText(None, "Attention", "Enter main password", 
-                                QLineEdit.Password)
-		if ok and text and len(text) > 3 and len(text) < 31:
-			password = hashlib.sha224(text.encode('utf-8')).hexdigest()
+
+		if len(self.lineEdit_password.text()) > 3 and len(self.lineEdit_password.text()) < 31:
+			password = hashlib.sha224(self.lineEdit_password.text().encode('utf-8')).hexdigest()
 			password_hash = password[:32]
 			open(FOLDER_PATH + 'data/hash', 'w').write((password_hash))
 			encrypt_file(FOLDER_PATH + 'data/hash', password_hash)
@@ -83,6 +85,9 @@ class LoginWidget(QWidget):
 				encrypt_file(FOLDER_PATH + 'data/data.csv', password_hash)
 			msg.setText('Success')
 			msg.exec_()
+			home_screen = screens.home.MainWindow(self.main_widget, password_hash)
+			self.main_widget.addWidget(home_screen)
+			self.main_widget.setCurrentWidget(home_screen)
 		else:
 			msg.setText('Incorrect password')
 			msg.exec_()
