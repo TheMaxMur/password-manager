@@ -1,10 +1,14 @@
-import hashlib
-import csv
+import hashlib, csv, sys, screens.add, screens.view, os, shutil, zipfile
 from services.aes import *
 from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QHBoxLayout, QWidget, QLineEdit, QHeaderView, QVBoxLayout, QPushButton, QMainWindow, QTableWidget, QInputDialog, QMessageBox, QAbstractItemView
-import screens.add
-import screens.view
+from PyQt5.QtWidgets import QFileDialog, QApplication, QHBoxLayout, QWidget, QLineEdit, QHeaderView, QVBoxLayout, QPushButton, QMainWindow, QTableWidget, QInputDialog, QMessageBox, QAbstractItemView
+
+
+if sys.platform == 'linux':
+	FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
+
+if sys.platform == 'win32':
+	FOLDER_PATH = 'C:\\' + os.environ['HOMEPATH'] + '\\' + '.passwordmanager\\'
 
 class MainWindow(QMainWindow):
     def __init__(self, main_widget, password_hash):
@@ -45,24 +49,39 @@ class MainWindow(QMainWindow):
         self.headerWidget = QWidget()
         self.buttonsWidget = QHBoxLayout(self.headerWidget)
         self.headerAdd = QPushButton('+')
-        self.headerImEx = QPushButton('Import/Export')
+        self.headerImport = QPushButton('Import')
+        self.headerExport = QPushButton('Export')
         self.headerAdd.setToolTip('Add a new password')
-        #self.headerImEx.clicked.connect(self.changeScreenToImport)
+        self.headerImport.clicked.connect(self.importFile)
+        self.headerExport.clicked.connect(self.exportFile)
         self.headerAdd.clicked.connect(self.changeScreenToAdd)
         self.buttonsWidget.addWidget(self.headerAdd)
-        self.buttonsWidget.addWidget(self.headerImEx)
+        self.buttonsWidget.addWidget(self.headerImport)
+        self.buttonsWidget.addWidget(self.headerExport)
 
         self.createTable()
         
         self.grid_layout.addWidget(self.headerWidget)
         self.grid_layout.addWidget(self.search)
         self.grid_layout.addWidget(self.table)
-        
+            
+    def importFile(self):
+        path_to_backup = QFileDialog.getOpenFileName(self, 'Select backup file')
+        if path_to_backup != "":
+            try:
+                with zipfile.ZipFile(path_to_backup[0], 'r') as zip_ref:
+                    zip_ref.extractall(FOLDER_PATH + 'data/')
+            except Exception as e:
+                print(e)
+        self.createTable()
 
-    def changeScreenToImport(self):
-        imex_screen = screens.add.AddWidget(self.main_widget, self)
-        self.main_widget.addWidget(imex_screen)
-        self.main_widget.setCurrentWidget(imex_screen)
+    def exportFile(self):
+        path_to_backup = QFileDialog.getExistingDirectory(self, 'Select directory for backup')
+        if path_to_backup != '':
+            try:
+                shutil.make_archive(path_to_backup + '/backup', 'zip', FOLDER_PATH + 'data')
+            except Exception as e:
+                print(e)
 
     def findName(self):
         name = self.search.text().lower()
@@ -78,7 +97,7 @@ class MainWindow(QMainWindow):
                                     QLineEdit.Password)
         key = hashlib.sha224(text.encode('utf-8')).hexdigest()[:32]
         try:
-            passhash = decrypt_file('./data/hash', key)
+            passhash = decrypt_file(FOLDER_PATH + 'data/hash', key)
         except:
             passhash = ''
 
@@ -106,7 +125,7 @@ class MainWindow(QMainWindow):
 
         key = hashlib.sha224(text.encode('utf-8')).hexdigest()[:32]
         try:
-            passhash = decrypt_file('./data/hash', key)
+            passhash = decrypt_file(FOLDER_PATH + 'data/hash', key)
         except:
             passhash = ''
 
@@ -121,12 +140,11 @@ class MainWindow(QMainWindow):
                     if result != datastr:
                         result_massive.append(datastr)
 
-            decrypt_file('data/data.csv', self.password_hash)
-            with open('data/data.csv', 'w') as data_file:
+            decrypt_file(FOLDER_PATH + 'data/data.csv', self.password_hash)
+            with open(FOLDER_PATH + 'data/data.csv', 'w') as data_file:
                 for index in range(len(result_massive)):
                     data_file.write(result_massive[index] + '\n')
-            encrypt_file('data/data.csv', self.password_hash)
-            #self.table.setRowHidden(button_index, True)
+            encrypt_file(FOLDER_PATH + 'data/data.csv', self.password_hash)
             self.createTable()
         else:
             if text == "":
@@ -185,7 +203,7 @@ class MainWindow(QMainWindow):
 
     def loadData(self):
         self.data = {}
-        data_file = decrypt_file('./data/data.csv', self.password_hash).strip().split("\n")
+        data_file = decrypt_file(FOLDER_PATH + 'data/data.csv', self.password_hash).strip().split("\n")
         reader = csv.reader(data_file, delimiter = ';')
         try:
             for row in reader:

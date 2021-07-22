@@ -1,7 +1,13 @@
 from PyQt5.QtWidgets import QApplication, QInputDialog, QMessageBox, QMainWindow, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel
 import hashlib
 from services.aes import *
+import sys
 
+if sys.platform == 'linux':
+	FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
+
+if sys.platform == 'win32':
+	FOLDER_PATH = 'C:\\' + os.environ['HOMEPATH'] + '\\' + '.passwordmanager\\'
 class viewWidget(QMainWindow):
     def __init__(self, main_widget, home_screen, domain, username, password):
         QMainWindow.__init__(self)
@@ -62,7 +68,7 @@ class viewWidget(QMainWindow):
                                     QLineEdit.Password)
         key = hashlib.sha224(text.encode('utf-8')).hexdigest()[:32]
         try:
-            passhash = decrypt_file('./data/hash', key)
+            passhash = decrypt_file(FOLDER_PATH + 'data/hash', key)
         except:
             passhash = ''
             

@@ -2,7 +2,13 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLCDNumber, QMessageBox, QCheckBox, QMainWindow, QPushButton, QSlider, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel
 import random, csv
 from services.aes import * 
+import sys
 
+if sys.platform == 'linux':
+	FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
+
+if sys.platform == 'win32':
+	FOLDER_PATH = 'C:\\' + os.environ['HOMEPATH'] + '\\' + '.passwordmanager\\'
 
 class AddWidget(QMainWindow):
     def __init__(self, main_widget, home_screen, password_hash):
@@ -37,12 +43,16 @@ class AddWidget(QMainWindow):
         #Settings of generete password
         self.passEditWidget = QWidget()
         self.passEditLayout = QVBoxLayout(self.passEditWidget)
+        self.buttonsPasswordParametrsWidget = QWidget()
+        self.buttonsPasswordParametrsLayout = QHBoxLayout(self.buttonsPasswordParametrsWidget)
         self.label_pass = QLabel('<font size="4"> Password </font>')
         self.checkLetters = QCheckBox('Letters', self)
         self.checkDigits = QCheckBox('Digits', self)
         self.checkSM = QCheckBox('Special symbols', self)
         self.passLenght = QSlider(Qt.Horizontal)
         self.lcd = QLCDNumber()
+        self.lineEditPass = QLineEdit()
+        self.lineEditPass.setPlaceholderText('Please enter your exist password')
         self.passLenght.setMinimum(4)
         self.passLenght.setMaximum(30)
         self.passLenght.setSingleStep(1)
@@ -60,16 +70,18 @@ class AddWidget(QMainWindow):
         self.passLenght.valueChanged.connect(self.getValue)
         self.lcd.display(self.passLenghtValue)
         self.passEditLayout.addWidget(self.label_pass)
-        self.passEditLayout.addWidget(self.checkLetters)
-        self.passEditLayout.addWidget(self.checkDigits)
-        self.passEditLayout.addWidget(self.checkSM)
+        self.passEditLayout.addWidget(self.lineEditPass)
+        self.buttonsPasswordParametrsLayout.addWidget(self.checkLetters)
+        self.buttonsPasswordParametrsLayout.addWidget(self.checkDigits)
+        self.buttonsPasswordParametrsLayout.addWidget(self.checkSM)
+        self.passEditLayout.addWidget(self.buttonsPasswordParametrsWidget)
         self.passEditLayout.addWidget(self.passLenght)
         self.passEditLayout.addWidget(self.lcd)
 
         self.ButtonsWidget = QWidget()
         self.ButtonsLayout = QHBoxLayout(self.ButtonsWidget)
         self.backButton = QPushButton('Back')
-        self.generateButton = QPushButton('Generate')
+        self.generateButton = QPushButton('Add password')
         self.backButton.clicked.connect(self.back)
         self.generateButton.clicked.connect(self.generate_password)
         self.ButtonsLayout.addWidget(self.backButton)
@@ -96,13 +108,16 @@ class AddWidget(QMainWindow):
             resultMassive += massiveSM
             
         if resultMassive != '' and self.lineEditSite.text() != '' and self.lineEditUsername.text() != '':
-            for _ in range(self.passLenghtValue):
-                password += random.choice(resultMassive)
+            if self.lineEditPass.text() != "":
+                password = self.lineEditPass.text()
+            else:
+                for _ in range(self.passLenghtValue):
+                    password += random.choice(resultMassive)
             key = self.password_hash
-            data_file = decrypt_file('./data/data.csv', key).strip().split("\n")
+            data_file = decrypt_file(FOLDER_PATH + 'data/data.csv', key).strip().split("\n")
 
             data = {}
-            dataFile = open('./data/data.csv', 'wb')
+            dataFile = open(FOLDER_PATH + 'data/data.csv', 'wb')
             
             reader = csv.reader(data_file)#, delimiter = ';')
             for row in reader:
@@ -111,7 +126,7 @@ class AddWidget(QMainWindow):
 
             dataFile.write((self.lineEditSite.text() + ';' + self.lineEditUsername.text() + ';' + password + '\n').encode("utf-8"))
             dataFile.close()
-            encrypt_file('./data/data.csv', self.password_hash)
+            encrypt_file(FOLDER_PATH + 'data/data.csv', self.password_hash)
             msg.setText('Success')
             msg.exec_()
             self.home_screen.createTable()
