@@ -18,7 +18,7 @@ class viewWidget(QMainWindow):
         self.siteEditWidget = QWidget()
         self.siteEditLayout = QVBoxLayout(self.siteEditWidget)
         self.label_site = QLabel('<font size="10"> Site </font>')
-        self.data_site = QLabel('<font size="8">' + domain + ' </font>')
+        self.data_site = QLabel('<font size="1">' + domain + ' </font>')
         self.siteEditLayout.addWidget(self.label_site)
         self.siteEditLayout.addWidget(self.data_site)
         
