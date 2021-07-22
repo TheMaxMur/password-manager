@@ -7,11 +7,13 @@ def pad(s):
 def encrypt(message, key):
     message = pad(message)
     iv = os.urandom(16)
+    key = key.encode("utf-8")
     cipher = AES.new(key, AES.MODE_CBC, iv)
     return iv + cipher.encrypt(message)
 
 def decrypt(ciphertext, key):
     iv = ciphertext[:AES.block_size]
+    key = key.encode('utf-8')
     cipher = AES.new(key, AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext[AES.block_size:])
     return plaintext.rstrip(b"\0")
