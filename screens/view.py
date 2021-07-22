@@ -17,23 +17,23 @@ class viewWidget(QMainWindow):
         #Site enter text settings
         self.siteEditWidget = QWidget()
         self.siteEditLayout = QVBoxLayout(self.siteEditWidget)
-        self.label_site = QLabel('<font size="10"> Site </font>')
-        self.data_site = QLabel('<font size="4">' + domain + ' </font>')
+        self.label_site = QLabel('<font size="20"> Site </font>')
+        self.data_site = QLabel('<font size="10">' + domain + ' </font>')
         self.siteEditLayout.addWidget(self.label_site)
         self.siteEditLayout.addWidget(self.data_site)
         
         #Username enter text settings
         self.usernameEditWidget = QWidget()
         self.usernameEditLayout = QVBoxLayout(self.usernameEditWidget)
-        self.label_username = QLabel('<font size="10"> Username </font>')
-        self.data_username = QLabel('<font size="4">' + username + ' </font>')
+        self.label_username = QLabel('<font size="20"> Username </font>')
+        self.data_username = QLabel('<font size="10">' + username + ' </font>')
         self.usernameEditLayout.addWidget(self.label_username)
         self.usernameEditLayout.addWidget(self.data_username)
 
         #Settings of generete password
         self.passEditWidget = QWidget()
         self.passEditLayout = QVBoxLayout(self.passEditWidget)
-        self.label_pass = QLabel('<font size="10"> Password </font>')
+        self.label_pass = QLabel('<font size="20"> Password </font>')
         self.copyPass = QPushButton('Copy password')
         self.copyPass.clicked.connect(self.copyText)
         self.passEditLayout.addWidget(self.label_pass)

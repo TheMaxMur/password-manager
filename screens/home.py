@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         self.headerAdd = QPushButton('+')
         self.headerImEx = QPushButton('Import/Export')
         self.headerAdd.setToolTip('Add a new password')
-        self.headerImEx.clicked.connect(self.changeScreenToImport)
+        #self.headerImEx.clicked.connect(self.changeScreenToImport)
         self.headerAdd.clicked.connect(self.changeScreenToAdd)
         self.buttonsWidget.addWidget(self.headerAdd)
         self.buttonsWidget.addWidget(self.headerImEx)
