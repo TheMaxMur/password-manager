@@ -80,9 +80,7 @@ class MainWindow(QMainWindow):
         try:
             passhash = decrypt_file('./data/hash', key)
         except:
-            msg.setText('Incorrect Password')
-            msg.exec_()
-            return
+            passhash = ''
 
         if ok and text and key == passhash:
             cb = QApplication.clipboard()
@@ -110,7 +108,7 @@ class MainWindow(QMainWindow):
         try:
             passhash = decrypt_file('./data/hash', key)
         except:
-            pass
+            passhash = ''
 
         if ok and text and key == passhash:
             data = self.data[button_index]
@@ -177,8 +175,6 @@ class MainWindow(QMainWindow):
         for index in range(len(self.massive_delete_buttons)):
             self.massive_domain_buttons[index].clicked.connect(lambda view, arg=index,domains = self.massive_domain_buttons[index].text(), usernames = self.massive_username_buttons[index].text(): self.viewScreen(arg, domains, usernames))
             self.massive_username_buttons[index].clicked.connect(lambda view, arg=index,domains = self.massive_domain_buttons[index].text(), usernames = self.massive_username_buttons[index].text(): self.viewScreen(arg, domains, usernames))
-
-        print(self.data)
 
     def viewScreen(self, button_index, domains, usernames):
         data = self.data[button_index]

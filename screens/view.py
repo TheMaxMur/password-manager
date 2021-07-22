@@ -64,9 +64,7 @@ class viewWidget(QMainWindow):
         try:
             passhash = decrypt_file('./data/hash', key)
         except:
-            msg.setText('Incorrect Password')
-            msg.exec_()
-            return
+            passhash = ''
             
         if ok and text and key == passhash:
             cb = QApplication.clipboard()
