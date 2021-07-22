@@ -1,6 +1,6 @@
 import hashlib
 import csv
-from services.aes import decrypt_file, encrypt_file
+from services.aes import *
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QWidget, QLineEdit, QHeaderView, QVBoxLayout, QPushButton, QMainWindow, QTableWidget, QInputDialog, QMessageBox, QAbstractItemView
 import screens.add
@@ -47,6 +47,7 @@ class MainWindow(QMainWindow):
         self.headerAdd = QPushButton('+')
         self.headerImEx = QPushButton('Import/Export')
         self.headerAdd.setToolTip('Add a new password')
+        self.headerImEx.clicked.connect(self.changeScreenToImport)
         self.headerAdd.clicked.connect(self.changeScreenToAdd)
         self.buttonsWidget.addWidget(self.headerAdd)
         self.buttonsWidget.addWidget(self.headerImEx)
@@ -57,6 +58,11 @@ class MainWindow(QMainWindow):
         self.grid_layout.addWidget(self.search)
         self.grid_layout.addWidget(self.table)
         
+
+    def changeScreenToImport(self):
+        imex_screen = screens.add.AddWidget(self.main_widget, self)
+        self.main_widget.addWidget(imex_screen)
+        self.main_widget.setCurrentWidget(imex_screen)
 
     def findName(self):
         name = self.search.text().lower()
@@ -84,8 +90,11 @@ class MainWindow(QMainWindow):
             data = data[button_index]
             cb.setText(list(data[list(data.keys())[0]].values())[0], mode=cb.Clipboard)
         else:
-            msg.setText('Incorrect Password')
-            msg.exec_()
+            if text == "":
+                pass
+            else:
+                msg.setText('Incorrect Password')
+                msg.exec_()
 
     def changeScreenToAdd(self):
         add_screen = screens.add.AddWidget(self.main_widget, self, self.password_hash)
@@ -119,10 +128,14 @@ class MainWindow(QMainWindow):
                 for index in range(len(result_massive)):
                     data_file.write(result_massive[index])
             encrypt_file('data/data.csv', self.password_hash)
-            self.table.setRowHidden(button_index, True)
+            #self.table.setRowHidden(button_index, True)
+            self.createTable()
         else:
-            msg.setText('Incorrect Password')
-            msg.exec_()
+            if text == "":
+                pass
+            else:
+                msg.setText('Incorrect Password')
+                msg.exec_()
 
     def createTable(self):
         self.loadData()
@@ -164,6 +177,8 @@ class MainWindow(QMainWindow):
         for index in range(len(self.massive_delete_buttons)):
             self.massive_domain_buttons[index].clicked.connect(lambda view, arg=index,domains = self.massive_domain_buttons[index].text(), usernames = self.massive_username_buttons[index].text(): self.viewScreen(arg, domains, usernames))
             self.massive_username_buttons[index].clicked.connect(lambda view, arg=index,domains = self.massive_domain_buttons[index].text(), usernames = self.massive_username_buttons[index].text(): self.viewScreen(arg, domains, usernames))
+
+        print(self.data)
 
     def viewScreen(self, button_index, domains, usernames):
         data = self.data[button_index]

@@ -73,5 +73,8 @@ class viewWidget(QMainWindow):
             cb.clear(mode=cb.Clipboard)
             cb.setText(self.password, mode=cb.Clipboard)
         else:
-            msg.setText('Incorrect Password')
-            msg.exec_()
+            if text == "":
+                pass
+            else:
+                msg.setText('Incorrect Password')
+                msg.exec_()

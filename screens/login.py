@@ -64,7 +64,7 @@ class LoginWidget(QWidget):
 		msg = QMessageBox()
 		text, ok = QInputDialog.getText(None, "Attention", "Enter main password", 
                                 QLineEdit.Password)
-		if ok and text and len(text) > 3:
+		if ok and text and len(text) > 3 and len(text) < 31:
 			password = hashlib.sha224(text.encode('utf-8')).hexdigest()
 			password_hash = password[:32]
 			open('data/hash', 'w').write((password_hash))
