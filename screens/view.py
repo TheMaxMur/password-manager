@@ -33,7 +33,7 @@ class viewWidget(QMainWindow):
         #Settings of generete password
         self.passEditWidget = QWidget()
         self.passEditLayout = QVBoxLayout(self.passEditWidget)
-        self.label_pass = QLabel('<font size="4"> Password </font>')
+        self.label_pass = QLabel('<font size="10"> Password </font>')
         self.copyPass = QPushButton('Copy password')
         self.copyPass.clicked.connect(self.copyText)
         self.passEditLayout.addWidget(self.label_pass)
