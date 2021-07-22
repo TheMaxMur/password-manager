@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
             decrypt_file('data/data.csv', self.password_hash)
             with open('data/data.csv', 'w') as data_file:
                 for index in range(len(result_massive)):
-                    data_file.write(result_massive[index])
+                    data_file.write(result_massive[index] + '\n')
             encrypt_file('data/data.csv', self.password_hash)
             #self.table.setRowHidden(button_index, True)
             self.createTable()
