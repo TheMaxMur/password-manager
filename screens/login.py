@@ -1,15 +1,6 @@
 from PyQt5.QtWidgets import (QWidget, QPushButton, QLabel, QLineEdit, QGridLayout, QMessageBox, QInputDialog)
-import hashlib
-import screens.home
-import os
+import hashlib, os, screens.home
 from services.aes import *
-import sys
-
-if sys.platform == 'linux':
-	FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
-
-if sys.platform == 'win32':
-	FOLDER_PATH = 'C:\\' + os.environ['HOMEPATH'] + '\\' + '.passwordmanager\\'
 
 
 class LoginWidget(QWidget):

@@ -1,15 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QInputDialog, QMessageBox, QMainWindow, QPushButton, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel
 import hashlib
 from services.aes import *
-import sys
-
-if sys.platform == 'linux':
-    FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
-    TEXT_COLOR = "#FFFFFF"
-
-if sys.platform == 'win32':
-    FOLDER_PATH = 'C:\\' + os.environ['HOMEPATH'] + '\\' + '.passwordmanager\\'
-    TEXT_COLOR = "#000000"
 
 
 class HyperlinkLabel(QLabel):
@@ -27,6 +18,8 @@ class viewWidget(QMainWindow):
         self.password = password
         self.domain = domain
         self.username = username
+        self.viewdomain = domain.split('.')[-2]
+        self.viewdomain = self.viewdomain.split("/")[-1]
 
         self.central_widget = QWidget(self)                
         self.setCentralWidget(self.central_widget)   
@@ -37,10 +30,9 @@ class viewWidget(QMainWindow):
         self.siteEditWidget = QWidget()
         self.siteEditLayout = QVBoxLayout(self.siteEditWidget)
         self.label_site = QLabel('<font size="10"> Site </font>')
-        #self.data_site = QLabel('<font size="6">' + self.domain + ' </font>')
         self.data_site = HyperlinkLabel(self)
         self.linkTemplate = '<a href={0} style="color:{1}; text-decoration:none;">{2}</a>'
-        self.data_site.setText(self.linkTemplate.format("http://" + self.domain, TEXT_COLOR, self.domain.split('.')[-2]))
+        self.data_site.setText(self.linkTemplate.format(self.domain, TEXT_COLOR, self.viewdomain))
         self.siteEditLayout.addWidget(self.label_site)
         self.siteEditLayout.addWidget(self.data_site)
         

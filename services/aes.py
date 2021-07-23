@@ -1,5 +1,19 @@
-import os
+import os, sys
 from Crypto.Cipher import AES
+
+
+if sys.platform == 'linux':
+    FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
+    TEXT_COLOR = "#FFFFFF"
+
+if sys.platform == 'win32':
+    FOLDER_PATH = 'C:\\' + os.environ['HOMEPATH'] + '\\' + '.passwordmanager\\'
+    TEXT_COLOR = "#000000"
+
+if sys.platform == "darwin":
+    FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager/'
+    TEXT_COLOR = "#FFFFFF"
+
 
 def pad(s):
     return s + b"\0" * (AES.block_size - len(s) % AES.block_size)

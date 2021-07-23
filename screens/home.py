@@ -1,14 +1,7 @@
-import hashlib, csv, sys, screens.add, screens.view, os, shutil, zipfile
+import hashlib, csv, screens.add, screens.view, shutil, zipfile
 from services.aes import *
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QApplication, QHBoxLayout, QWidget, QLineEdit, QHeaderView, QVBoxLayout, QPushButton, QMainWindow, QTableWidget, QInputDialog, QMessageBox, QAbstractItemView
-
-
-if sys.platform == 'linux':
-	FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
-
-if sys.platform == 'win32':
-	FOLDER_PATH = 'C:\\' + os.environ['HOMEPATH'] + '\\' + '.passwordmanager\\'
 
 class MainWindow(QMainWindow):
     def __init__(self, main_widget, password_hash):
@@ -175,7 +168,9 @@ class MainWindow(QMainWindow):
         for row, res_data in enumerate(list(self.data.values())):
             domain = list(res_data.keys())[0]
             username = list(res_data[domain].keys())[0]
-            self.massive_domain_buttons.append(QPushButton(domain.split('.')[-2]))
+            domain = domain.split('.')[-2]
+            domain = domain.split("/")[-1]
+            self.massive_domain_buttons.append(QPushButton(domain))
             self.massive_username_buttons.append(QPushButton(username))
             self.massive_copy_buttons.append(QPushButton('Copy'))
             self.massive_delete_buttons.append(QPushButton('Delete'))

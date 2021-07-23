@@ -1,13 +1,9 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLCDNumber, QMessageBox, QCheckBox, QMainWindow, QPushButton, QSlider, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel
-import random, csv, sys, re
+import random, csv, re
 from services.aes import * 
+from urllib.parse import urlparse
 
-if sys.platform == 'linux':
-	FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
-
-if sys.platform == 'win32':
-	FOLDER_PATH = 'C:\\' + os.environ['HOMEPATH'] + '\\' + '.passwordmanager\\'
 
 class AddWidget(QMainWindow):
     def __init__(self, main_widget, home_screen, password_hash):
@@ -105,10 +101,22 @@ class AddWidget(QMainWindow):
             resultMassive += massiveLetters
         if self.flagSM:
             resultMassive += massiveSM
+        
+        self.addSite = self.lineEditSite.text()
+
+        if resultMassive != '' and self.addSite != '' and self.lineEditUsername.text() != '':
+
+            if "http" not in self.addSite:
+                self.addSite = "http://" + self.addSite
+
+            checkSite = re.match(r'((http|https)\:\/\/)?[a-zA-Z0-9\.\/\?\:@\-_=#]+\.([a-zA-Z]){2,6}([a-zA-Z0-9\.\&\/\?\:@\-_=#])*', self.addSite)
             
-        if resultMassive != '' and self.lineEditSite.text() != '' and self.lineEditUsername.text() != '':
-            checkSite = re.match(r'^[a-z0-9]([a-z0-9-]+\.){1,}[a-z0-9]+\Z', self.lineEditSite.text())
             if checkSite:
+                if "https" in self.addSite:
+                    self.addSite = "https://" + urlparse(self.addSite).netloc
+                elif "http" in self.addSite:
+                    self.addSite = "http://" + urlparse(self.addSite).netloc
+
                 if self.lineEditPass.text() != "":
                     password = self.lineEditPass.text()
                 else:
@@ -124,7 +132,7 @@ class AddWidget(QMainWindow):
                     if row != []:
                         dataFile.write((row[0] + '\n').encode("utf-8"))
 
-                dataFile.write((self.lineEditSite.text() + ';' + self.lineEditUsername.text() + ';' + password + '\n').encode("utf-8"))
+                dataFile.write((self.addSite + ';' + self.lineEditUsername.text() + ';' + password + '\n').encode("utf-8"))
                 dataFile.close()
                 encrypt_file(FOLDER_PATH + 'data/data.csv', self.password_hash)
                 msg.setText('Success')
