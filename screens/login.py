@@ -26,9 +26,11 @@ class LoginWidget(QWidget):
 		except:
 			try:
 				os.mkdir(FOLDER_PATH)
-				os.mkdir(FOLDER_PATH + "data")
 			except:
-				pass
+				try:
+					os.mkdir(FOLDER_PATH + "data")
+				except:
+					pass
 			self.password_hashFlag = False
 
 		try:

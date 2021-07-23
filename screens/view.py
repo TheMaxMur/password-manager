@@ -4,16 +4,29 @@ from services.aes import *
 import sys
 
 if sys.platform == 'linux':
-	FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
+    FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
+    TEXT_COLOR = "#FFFFFF"
 
 if sys.platform == 'win32':
-	FOLDER_PATH = 'C:\\' + os.environ['HOMEPATH'] + '\\' + '.passwordmanager\\'
+    FOLDER_PATH = 'C:\\' + os.environ['HOMEPATH'] + '\\' + '.passwordmanager\\'
+    TEXT_COLOR = "#000000"
+
+
+class HyperlinkLabel(QLabel):
+    def __init__(self, parent=None):
+        super().__init__()
+        self.setStyleSheet('font-size: 35px')
+        self.setOpenExternalLinks(True)
+        self.setParent(parent)
+
 class viewWidget(QMainWindow):
     def __init__(self, main_widget, home_screen, domain, username, password):
         QMainWindow.__init__(self)
         self.main_widget = main_widget
         self.home_screen = home_screen
         self.password = password
+        self.domain = domain
+        self.username = username
 
         self.central_widget = QWidget(self)                
         self.setCentralWidget(self.central_widget)   
@@ -24,7 +37,10 @@ class viewWidget(QMainWindow):
         self.siteEditWidget = QWidget()
         self.siteEditLayout = QVBoxLayout(self.siteEditWidget)
         self.label_site = QLabel('<font size="10"> Site </font>')
-        self.data_site = QLabel('<font size="6">' + domain + ' </font>')
+        #self.data_site = QLabel('<font size="6">' + self.domain + ' </font>')
+        self.data_site = HyperlinkLabel(self)
+        self.linkTemplate = '<a href={0} style="color:{1}; text-decoration:none;">{2}</a>'
+        self.data_site.setText(self.linkTemplate.format("http://" + self.domain, TEXT_COLOR, self.domain.split('.')[-2]))
         self.siteEditLayout.addWidget(self.label_site)
         self.siteEditLayout.addWidget(self.data_site)
         
@@ -32,7 +48,11 @@ class viewWidget(QMainWindow):
         self.usernameEditWidget = QWidget()
         self.usernameEditLayout = QVBoxLayout(self.usernameEditWidget)
         self.label_username = QLabel('<font size="10"> Username </font>')
-        self.data_username = QLabel('<font size="6">' + username + ' </font>')
+        #self.data_username = QLabel('<font size="6">' + username + ' </font>')
+        self.data_username = QLineEdit()
+        self.data_username.setText(self.username)
+        self.data_username.setStyleSheet('font-size: 30px;')
+        self.data_username.setReadOnly(True)
         self.usernameEditLayout.addWidget(self.label_username)
         self.usernameEditLayout.addWidget(self.data_username)
 

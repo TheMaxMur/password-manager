@@ -175,7 +175,7 @@ class MainWindow(QMainWindow):
         for row, res_data in enumerate(list(self.data.values())):
             domain = list(res_data.keys())[0]
             username = list(res_data[domain].keys())[0]
-            self.massive_domain_buttons.append(QPushButton(domain))
+            self.massive_domain_buttons.append(QPushButton(domain.split('.')[-2]))
             self.massive_username_buttons.append(QPushButton(username))
             self.massive_copy_buttons.append(QPushButton('Copy'))
             self.massive_delete_buttons.append(QPushButton('Delete'))
@@ -191,11 +191,13 @@ class MainWindow(QMainWindow):
             self.massive_delete_buttons[index].clicked.connect(lambda delete, arg=index: self.deletePassword(arg))
 
         for index in range(len(self.massive_delete_buttons)):
-            self.massive_domain_buttons[index].clicked.connect(lambda view, arg=index,domains = self.massive_domain_buttons[index].text(), usernames = self.massive_username_buttons[index].text(): self.viewScreen(arg, domains, usernames))
-            self.massive_username_buttons[index].clicked.connect(lambda view, arg=index,domains = self.massive_domain_buttons[index].text(), usernames = self.massive_username_buttons[index].text(): self.viewScreen(arg, domains, usernames))
+            self.massive_domain_buttons[index].clicked.connect(lambda view, arg=index: self.viewScreen(arg))
+            self.massive_username_buttons[index].clicked.connect(lambda view, arg=index: self.viewScreen(arg))
 
-    def viewScreen(self, button_index, domains, usernames):
+    def viewScreen(self, button_index):
         data = self.data[button_index]
+        domains = list(data.keys())[0]
+        usernames = list(data[domains])[0]
         password = list(data[list(data.keys())[0]].values())[0]
         view_screen = screens.view.viewWidget(self.main_widget, self, domains, usernames, password)
         self.main_widget.addWidget(view_screen)

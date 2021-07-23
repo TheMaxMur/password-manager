@@ -1,8 +1,7 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLCDNumber, QMessageBox, QCheckBox, QMainWindow, QPushButton, QSlider, QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel
-import random, csv
+import random, csv, sys, re
 from services.aes import * 
-import sys
 
 if sys.platform == 'linux':
 	FOLDER_PATH = os.environ['HOME'] + '/' + '.passwordmanager' + '/'
@@ -108,30 +107,34 @@ class AddWidget(QMainWindow):
             resultMassive += massiveSM
             
         if resultMassive != '' and self.lineEditSite.text() != '' and self.lineEditUsername.text() != '':
-            if self.lineEditPass.text() != "":
-                password = self.lineEditPass.text()
+            checkSite = re.match(r'^[a-z0-9]([a-z0-9-]+\.){1,}[a-z0-9]+\Z', self.lineEditSite.text())
+            if checkSite:
+                if self.lineEditPass.text() != "":
+                    password = self.lineEditPass.text()
+                else:
+                    for _ in range(self.passLenghtValue):
+                        password += random.choice(resultMassive)
+                key = self.password_hash
+                data_file = decrypt_file(FOLDER_PATH + 'data/data.csv', key).strip().split("\n")
+
+                dataFile = open(FOLDER_PATH + 'data/data.csv', 'wb')
+                
+                reader = csv.reader(data_file)
+                for row in reader:
+                    if row != []:
+                        dataFile.write((row[0] + '\n').encode("utf-8"))
+
+                dataFile.write((self.lineEditSite.text() + ';' + self.lineEditUsername.text() + ';' + password + '\n').encode("utf-8"))
+                dataFile.close()
+                encrypt_file(FOLDER_PATH + 'data/data.csv', self.password_hash)
+                msg.setText('Success')
+                msg.exec_()
+                self.home_screen.createTable()
+                self.main_widget.setCurrentWidget(self.home_screen)
+                self.main_widget.removeWidget(self)
             else:
-                for _ in range(self.passLenghtValue):
-                    password += random.choice(resultMassive)
-            key = self.password_hash
-            data_file = decrypt_file(FOLDER_PATH + 'data/data.csv', key).strip().split("\n")
-
-            data = {}
-            dataFile = open(FOLDER_PATH + 'data/data.csv', 'wb')
-            
-            reader = csv.reader(data_file)#, delimiter = ';')
-            for row in reader:
-                if row != []:
-                    dataFile.write((row[0] + '\n').encode("utf-8"))
-
-            dataFile.write((self.lineEditSite.text() + ';' + self.lineEditUsername.text() + ';' + password + '\n').encode("utf-8"))
-            dataFile.close()
-            encrypt_file(FOLDER_PATH + 'data/data.csv', self.password_hash)
-            msg.setText('Success')
-            msg.exec_()
-            self.home_screen.createTable()
-            self.main_widget.setCurrentWidget(self.home_screen)
-            self.main_widget.removeWidget(self)
+                msg.setText('Incorrect site link')
+                msg.exec_()
         else:
              msg.setText('Wrong settings')
              msg.exec_()
