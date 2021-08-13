@@ -17,6 +17,7 @@ class LoginWidget(QWidget):
 		except:
 			try:
 				os.mkdir(FOLDER_PATH)
+				os.mkdir(FOLDER_PATH + "data")
 			except:
 				try:
 					os.mkdir(FOLDER_PATH + "data")
